@@ -55,13 +55,14 @@ formulario.addEventListener('submit', function(evento) {
         setTimeout(function() {
             window.location.href = '../Inicio/Menu.html';
         }, 2000);
-        return;
+        formulario.reset();
     } else if(email.value.endsWith('@admin.com')) {
         resultadoBoton.textContent = 'Administrador registrado correctamente. Redirigiendo...';
         resultadoBoton.className = 'alert alert-success mt-4';
         setTimeout(function() {
             window.location.href = '../Inicio/Menu.html';
         }, 2000);
+        formulario.reset();
     }else if(email.value.endsWith('@duocuc.cl')) {
         resultadoBoton.textContent = 'Estudiante registrado correctamente. Redirigiendo...';
         resultadoBoton.className = 'alert alert-success mt-4';
