@@ -1,0 +1,147 @@
+:root{
+  --Negro:#1a1a1a;
+  --gray-bg:#7FC4F2;
+  --gray-border:#cfcfcf;
+  --blue-link:#2952d9;
+  --white:#EAF6FF;
+}
+
+*{box-sizing:border-box; margin:0; padding:0;}
+
+body{
+  font-family: Arial, Helvetica, sans-serif;
+  color:var(--Negro);
+  background:var(--white);
+}
+
+a{ text-decoration:none; color:inherit; }
+
+header.inicio{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:18px 32px;
+  border-bottom:2px solid var(--Negro);
+}
+
+nav.main{
+  display:flex;
+  gap:24px;
+}
+
+nav.main a{
+  color:var(--blue-link);
+  text-decoration:underline;
+  font-size:15px;
+}
+
+.carro{
+  color:var(--blue-link);
+  text-decoration:underline;
+  font-size:15px;
+}
+
+.btn-primary{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  background:var(--white);
+  border:1px solid var(--Negro);
+  padding:12px 20px;
+  font-size:14px;
+  cursor:pointer;
+}
+
+.section{
+  padding:32px;
+}
+
+.crrito_vacio{
+  margin-top:24px;
+  min-height:420px;
+  border:3px solid var(--Negro);
+  border-radius:24px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:16px;
+  text-align:center;
+}
+
+.crrito_vacio p{
+  font-size:16px;
+  color:#444;
+}
+
+footer{
+  text-align:center;
+  padding:24px;
+  font-size:13px;
+  color:#777;
+  border-top:1px solid var(--gray-border);
+  margin-top:16px;
+}
+
+html, body{
+  height:100%;
+}
+
+body{
+  display:flex;
+  flex-direction:column;
+  min-height:100vh;
+}
+
+.section{
+  flex:1;
+}
+
+/* ===== RESPONSIVE ===== */
+
+/* Base: pensado para móvil desde 360px */
+header.inicio{
+  flex-wrap:wrap;
+  gap:10px;
+}
+
+nav.main{
+  flex-wrap:wrap;
+  gap:12px;
+  justify-content:center;
+  width:100%;
+}
+
+.crrito_vacio{
+  min-height:280px;
+  padding:16px;
+}
+
+@media (min-width:768px){
+  header.inicio{
+    flex-wrap:nowrap;
+    justify-content:space-between;
+  }
+
+  nav.main{
+    width:auto;
+    justify-content:flex-start;
+  }
+
+  .crrito_vacio{
+    min-height:360px;
+  }
+}
+
+/* Escritorio: 1280px en adelante */
+@media (min-width:1280px){
+  .section{
+    max-width:1100px;
+    margin:0 auto;
+    width:100%;
+  }
+
+  .crrito_vacio{
+    min-height:420px;
+  }
+}
