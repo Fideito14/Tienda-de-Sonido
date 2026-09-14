@@ -97,9 +97,6 @@ body{
   flex:1;
 }
 
-/* ===== RESPONSIVE ===== */
-
-/* Base: pensado para móvil desde 360px */
 header.inicio{
   flex-wrap:wrap;
   gap:10px;
@@ -133,7 +130,6 @@ nav.main{
   }
 }
 
-/* Escritorio: 1280px en adelante */
 @media (min-width:1280px){
   .section{
     max-width:1100px;
