@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel Administrador</title>
+
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+
+    <!-- Contenedor general que ocupa alto de la pantalla (min-vh-100) -->
+    <div class="d-flex min-vh-100">
+        <aside class="d-flex flex-column bg-white border-end p-3" style="width: 250px;">
+
+            <!-- Cabecera -->
+            <div class="d-flex align-items-center gap-2 pb-3 mb-3 border-bottom">
+                <h5>Company</h5>
+            </div>
+
+            <ul class="nav nav-pills flex-column gap-3">
+                <li class="nav-item">
+                    <a href="../../admin.html" class="nav-link active p-0 text-center align-items-center gap-2">
+                        Inicio
+                    </a>
+                </li>
+            </ul>
+            <hr>
+            <!-- Menú superior -->
+            <ul class="nav flex-column gap-3">
+                <strong>Gestion de Usuarios</strong>
+                <li class="nav-item">
+                    <a href="../ver-usuarios/ver-usuarios.html" class="nav-link p-0 text-dark d-flex align-items-center gap-2">
+                        Ver Usuarios
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="../editar-usuario/editar-usuario.html" class="nav-link p-0 text-dark d-flex align-items-center gap-2">
+                        Editar Usuario
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="nuevo-usuario.html" class="nav-link p-0 text-dark d-flex align-items-center gap-2">
+                        Nuevo Usuario
+                    </a>
+                </li>
+            </ul>
+            <hr>
+            <ul class="nav flex-column gap-3">
+                <strong>Gestion de Productos</strong>
+                <li class="nav-item">
+                    <a href="../../productos/ver-productos/ver-productos.html" class="nav-link p-0 text-dark d-flex align-items-center gap-2">
+                        Ver Productos
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="../../productos/editar-producto/editar-producto.html" class="nav-link p-0 text-dark d-flex align-items-center gap-2">
+                        Editar Producto
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="../../productos/nuevo-producto/nuevo-producto.html" class="nav-link p-0 text-dark d-flex align-items-center gap-2">
+                        Nuevo Producto
+                    </a>
+                </li>
+            </ul>
+
+
+            <!-- Menú inferior (empujado hacia abajo con mt-auto) -->
+            <div class="mt-auto">
+                <!-- Perfil abajo -->
+                <div class="pt-3 border-top">
+                    <a href="#Profile" class="nav-link p-0 text-dark d-flex align-items-center gap-2 fw-bold">
+                        Profile
+                    </a>
+                </div>
+            </div>
+
+        </aside>
+
+        <main class="flex-grow-1 d-flex flex-column">
+
+            <div class="p-4 border-bottom flex-grow-1">
+                <h1>Nuevo Usuario</h1>
+
+                <form id="formUsuario" class="mt-4">
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <label for="id" class="form-label">ID</label>
+                            <input type="number" class="form-control" id="id" placeholder="Ej: 6" min="1">
+                        </div>
+                        <div class="col-md-4">
+                            <label for="usuario" class="form-label">Usuario</label>
+                            <input type="text" class="form-control" id="usuario" placeholder="Ej: jperez">
+                        </div>
+                        <div class="col-md-4">
+                            <label for="contraseña" class="form-label">Contraseña</label>
+                            <input type="password" class="form-control" id="contraseña" placeholder="Ej: clave123">
+                        </div>
+                        <div class="col-md-4">
+                            <label for="nombreCompleto" class="form-label">Nombre Completo</label>
+                            <input type="text" class="form-control" id="nombreCompleto" placeholder="Ej: Juan Pérez González">
+                        </div>
+                        <div class="col-md-4">
+                            <label for="telefono" class="form-label">Teléfono</label>
+                            <input type="number" class="form-control" id="telefono" placeholder="Ej: 912345678" min="0">
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary mt-3">Guardar Usuario</button>
+                    <button type="reset" class="btn btn-secondary mt-3 ms-2">Limpiar</button>
+                </form>
+
+                <div id="mensaje" class="mt-3"></div>
+            </div>
+        </main>
+
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js" integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.min.js" integrity="sha384-G/EV+4j2dNv+tEPo3++6LCgdCROaejBqfUeNjuKAiuXbjrxilcCdDz6ZAVfHWe1Y" crossorigin="anonymous"></script>
+    <script src="../js/bd.js"></script>
+    <script src="js/script.js"></script>
+</body>
+
+</html>

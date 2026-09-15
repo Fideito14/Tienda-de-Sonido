@@ -1,0 +1,12 @@
+body{
+    background-color: #EAF6FF;
+}
+
+#encabezado{
+    background-color: #1E5A9C;
+    box-shadow: 0px 0px 15px black;
+}
+
+#encabezado p, span, a{
+    color: #BFE3FA;
+}
