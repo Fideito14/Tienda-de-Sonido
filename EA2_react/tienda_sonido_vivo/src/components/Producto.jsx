@@ -1,42 +1,100 @@
-import { Card, Button, Col, Badge } from 'react-bootstrap'
-import { Link } from 'react-router-dom'
+// src/components/Producto.jsx
 
+import { useContext } from 'react';
+import { Card, Button, Badge } from 'react-bootstrap';
+import { Link } from 'react-router-dom';
+import { CartContext } from '../context/CartContext';
 
-function Producto({ id, nombre, descripcion, precio, stock }) {
+// Mapeo apuntando a public/imagenes/
+const imagenesCategorias = {
+  'Guitarras Acústicas': '/Imagenes/guitarra_acustica.jpg',
+  'Guitarras Eléctricas': '/Imagenes/guitarra_electrica.webp',
+  'Bajos Eléctricos': '/Imagenes/bajo_electrico.webp',
+  'Baterías': '/Imagenes/bateria.webp',
+  'Teclados y Pianos': '/Imagenes/teclado.webp',
+  'Amplificadores': '/Imagenes/amplificador.webp',
+  'Micrófonos': '/Imagenes/microfono.webp',
+  'Pedales de Efectos': '/Imagenes/pedal.jpg',
+  'Accesorios': '/Imagenes/accesorios.jfif',
+  'Estudio y Grabación': '/Imagenes/grabacion.jpg',
+};
+
+function Producto({ id, nombre, descripcion, precio, stock, marca, modelo, categoria, imagen }) {
+  const { agregarAlCarrito } = useContext(CartContext);
+
+  // Si el producto trae imagen en el JS la usa; si no, toma la de su categoría
+  const imagenFinal = imagen || imagenesCategorias[categoria] || '/Imagenes/accesorios.jpg';
+
   return (
-    <Col xs={12} md={6} lg={3} className="d-flex align-items-stretch">
-      <Card
-        className="w-100 shadow-sm border-0 rounded-4"
-        style={{ backgroundColor: '#BFE3FA' }}
-      >
-        {/* Descomentar a futuro para ingresar imágen de Card del producto. */}
-        {/* <Card.Img /> */}
-        <Card.Body className="d-flex flex-column text-center">
-          <Card.Title className="fw-bold">{nombre}</Card.Title>
-          <Card.Text className="small">{descripcion}</Card.Text>
-          <div className="mb-3">
-            {/* Si stock es superior a 0, imprime "Stock: ...", de lo contrario muestra "Agotado" */}
-            {stock > 0 ? (
-              <Badge bg="success">Stock: {stock}</Badge>
-            ) : (
-              <Badge bg="danger">Agotado</Badge>
-            )}
+    <Card 
+      className="h-100 border rounded-4 overflow-hidden shadow-lg"
+      style={{ backgroundColor: '#18181B', borderColor: '#27272A' }}
+    >
+      <Card.Body className="p-4 d-flex flex-column">
+        <div className="d-flex justify-content-between align-items-center mb-3">
+          <span className="text-uppercase small fw-bold" style={{ color: '#F59E0B' }}>
+            {marca} {modelo && `• ${modelo}`}
+          </span>
+          <Badge bg={stock > 0 ? 'success' : 'danger'} className="rounded-pill px-2 py-1">
+            {stock > 0 ? `Stock: ${stock}` : 'Agotado'}
+          </Badge>
+        </div>
+
+        <div 
+          className="rounded-3 overflow-hidden d-flex align-items-center justify-content-center mb-3 position-relative"
+          style={{ backgroundColor: '#09090B', height: '180px', border: '1px solid #27272A' }}
+        >
+          <img 
+            src={imagenFinal} 
+            alt={nombre} 
+            style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
+          />
+          <Badge bg="dark" className="position-absolute bottom-0 start-0 m-2 border border-secondary text-light">
+            {categoria}
+          </Badge>
+        </div>
+
+        <Card.Title className="fw-bold text-white fs-5 mb-2 text-truncate" title={nombre}>
+          {nombre}
+        </Card.Title>
+
+        <Card.Text className="small mb-4 flex-grow-1 text-truncate-2" style={{ color: '#A1A1AA' }}>
+          {descripcion}
+        </Card.Text>
+
+        <div className="mt-auto pt-3 border-top" style={{ borderColor: '#27272A' }}>
+          <div className="d-flex justify-content-between align-items-center mb-3">
+            <span className="fs-4 fw-bold text-white">
+              ${precio ? precio.toLocaleString('es-CL') : precio}
+            </span>
           </div>
-          <h6 className="text-success fw-bold fs-5 mt-auto mb-3">
-            {/* toLocaleString formatea los numeros al pais esperado. */}
-            ${precio.toLocaleString('es-CL')}
-          </h6>
 
-          <Link to={`/productos/${id}`}>
-            <Button variant="primary" className="rounded-pill fw-bold">
-              Ver detalles
+          <div className="d-grid gap-2">
+            <Link to={`/productos/${id}`}>
+              <Button 
+                variant="outline-light" 
+                size="sm" 
+                className="w-100 rounded-pill fw-semibold"
+                style={{ borderColor: '#3F3F46', color: '#F4F4F5' }}
+              >
+                Ver Detalle
+              </Button>
+            </Link>
+            <Button
+              variant="warning"
+              size="sm"
+              className="rounded-pill fw-bold shadow-sm"
+              style={{ backgroundColor: '#F59E0B', borderColor: '#F59E0B', color: '#09090B' }}
+              onClick={() => agregarAlCarrito(1)}
+              disabled={stock === 0}
+            >
+              Agregar al Carrito 🛒
             </Button>
-          </Link>
-
-        </Card.Body>
-      </Card>
-    </Col>
-  )
+          </div>
+        </div>
+      </Card.Body>
+    </Card>
+  );
 }
 
-export default Producto
+export default Producto;
