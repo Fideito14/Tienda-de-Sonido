@@ -1,8 +1,15 @@
-import { useContext } from 'react';
-import { Container, Row, Col, Card, Button, Badge } from 'react-bootstrap';
+import { useContext, useState } from 'react';
+import { Container, Row, Col, Card, Button, Badge, Alert } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
-import { productos, categorias } from '../data/productos';
+import { productos, categorias as categoriasData } from '../data/productos';
 import { CartContext } from '../context/CartContext';
+
+// Usamos un respaldo seguro si categoriasData no viene definido
+const categoriasList = Array.isArray(categoriasData) ? categoriasData : [
+    'Guitarras Acústicas', 'Guitarras Eléctricas', 'Bajos Eléctricos',
+    'Baterías', 'Teclados y Pianos', 'Amplificadores', 'Micrófonos',
+    'Pedales de Efectos', 'Accesorios', 'Estudio y Grabación'
+];
 
 const emojisCategorias = {
     'Guitarras Acústicas': '🪕',
@@ -34,10 +41,34 @@ const IMAGEN_RESPALDO = 'https://images.unsplash.com/photo-1511379938547-c1f6941
 
 function Inicio() {
     const { agregarAlCarrito } = useContext(CartContext);
-    const productosDestacados = productos ? productos.slice(0, 4) : [];
+
+    const [mensajeAlerta, setMensajeAlerta] = useState(null);
+    const [tipoAlerta, setTipoAlerta] = useState('success');
+
+    const productosDestacados = Array.isArray(productos) ? productos.slice(0, 4) : [];
+
+    const handleAgregarCarrito = (prod) => {
+        const resultado = agregarAlCarrito(prod, 1);
+
+        setTipoAlerta(resultado.exito ? 'success' : 'danger');
+        setMensajeAlerta(resultado.mensaje);
+
+        setTimeout(() => {
+            setMensajeAlerta(null);
+        }, 3000);
+    };
 
     return (
         <div style={{ backgroundColor: '#09090B', color: '#F4F4F5', minHeight: '100vh' }}>
+
+            {mensajeAlerta && (
+                <div className="position-fixed top-0 start-50 translate-middle-x mt-3" style={{ zIndex: 1100, width: '90%', maxWidth: '500px' }}>
+                    <Alert variant={tipoAlerta} className="shadow-lg text-center fw-semibold rounded-3">
+                        {mensajeAlerta}
+                    </Alert>
+                </div>
+            )}
+
             <section
                 className="position-relative py-5 overflow-hidden"
                 style={{
@@ -87,7 +118,7 @@ function Inicio() {
                     </div>
 
                     <Row className="g-3 row-cols-2 row-cols-sm-3 row-cols-md-4 row-cols-lg-5 justify-content-center">
-                        {categorias.map((catNombre, idx) => {
+                        {categoriasList.map((catNombre, idx) => {
                             const emoji = emojisCategorias[catNombre] || '🎵';
 
                             return (
@@ -132,9 +163,10 @@ function Inicio() {
                     <Row className="g-4">
                         {productosDestacados.map((prod) => {
                             const imgProd = prod.imagen || imagenesCategorias[prod.categoria] || IMAGEN_RESPALDO;
+                            const prodId = prod.codigo || prod.id;
 
                             return (
-                                <Col key={prod.codigo} xs={12} sm={6} lg={3}>
+                                <Col key={prodId} xs={12} sm={6} lg={3}>
                                     <Card
                                         className="h-100 border rounded-4 overflow-hidden d-flex flex-column shadow-lg"
                                         style={{ backgroundColor: '#09090B', borderColor: '#27272A' }}
@@ -174,16 +206,28 @@ function Inicio() {
                                                 <span className="fs-4 fw-bold text-white">
                                                     ${prod.precio ? prod.precio.toLocaleString('es-CL') : prod.precio}
                                                 </span>
-                                                <Button
-                                                    variant="warning"
-                                                    className="rounded-circle p-2 d-flex align-items-center justify-content-center"
-                                                    style={{ width: '42px', height: '42px', backgroundColor: '#F59E0B', borderColor: '#F59E0B' }}
-                                                    onClick={() => agregarAlCarrito(1)}
-                                                    disabled={prod.stock === 0}
-                                                    title="Agregar al Carrito"
-                                                >
-                                                    🛒
-                                                </Button>
+                                                <div className="d-flex gap-2">
+                                                    {/* Aseguramos que la ruta coincida con App.jsx (/producto/ o /productos/) */}
+                                                    <Link to={`/productos/${prodId}`}>
+                                                        <Button
+                                                            variant="outline-light"
+                                                            size="sm"
+                                                            className="rounded-pill px-3"
+                                                        >
+                                                            Ver
+                                                        </Button>
+                                                    </Link>
+                                                    <Button
+                                                        variant="warning"
+                                                        className="rounded-circle p-2 d-flex align-items-center justify-content-center"
+                                                        style={{ width: '42px', height: '42px', backgroundColor: '#F59E0B', borderColor: '#F59E0B' }}
+                                                        onClick={() => handleAgregarCarrito(prod)}
+                                                        disabled={prod.stock === 0}
+                                                        title="Agregar al Carrito"
+                                                    >
+                                                        🛒
+                                                    </Button>
+                                                </div>
                                             </div>
                                         </Card.Body>
                                     </Card>

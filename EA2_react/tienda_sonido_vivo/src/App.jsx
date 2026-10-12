@@ -8,6 +8,7 @@ import InicioSesionpage from './pages/InicioSesion'
 import RegistroSesionpage from './pages/RegistroSesion'
 import { CartProvider } from './context/CartContext'
 import Inicio from './pages/Inicio'
+import Carro from './pages/Carro';
 
 function App() {
   return (
@@ -20,6 +21,7 @@ function App() {
           <Route path="/productos/:id" element={<DetalleProducto />} />
           <Route path="/iniciosesion" element={<InicioSesionpage />} />
           <Route path="/registrosesion" element={<RegistroSesionpage />} />
+          <Route path="/carrito" element={<Carro />} />
         </Routes>
       </BrowserRouter>
     </CartProvider>

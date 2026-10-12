@@ -41,8 +41,13 @@ function InicioSesionpage() {
         const resultado = validarUsuario(email, password);
 
         if (resultado.exito) {
+            // Guardamos el usuario activo en el navegador para el Navbar
+            localStorage.setItem('loggedUser', JSON.stringify(resultado.usuario));
+
             alert(`¡Bienvenido de nuevo, ${resultado.usuario.nombre}!`);
-            navigate('/');
+
+            // Forzamos una recarga limpia para que el Navbar detecte el usuario al instante
+            window.location.href = '/';
         } else {
             setErrorGeneral(resultado.mensaje);
         }
