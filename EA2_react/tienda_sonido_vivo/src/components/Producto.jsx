@@ -25,6 +25,24 @@ function Producto({ id, nombre, descripcion, precio, stock, marca, modelo, categ
   // Si el producto trae imagen en el JS la usa; si no, toma la de su categoría
   const imagenFinal = imagen || imagenesCategorias[categoria] || '/Imagenes/accesorios.jpg';
 
+  /* Exequiel:
+      había error en el método onClick agregarAlCarrito.
+      Se soluciona creando un objeto para producto a insertar y usar ese producto.
+  */
+  const productoParaCarro = {
+    codigo: id,
+    id,
+    nombre,
+    descripcion,
+    precio,
+    stock,
+    marca,
+    modelo,
+    categoria,
+    imagen: imagenFinal
+  }
+
+
   return (
     <Card 
       className="h-100 border rounded-4 overflow-hidden shadow-lg"
@@ -85,7 +103,7 @@ function Producto({ id, nombre, descripcion, precio, stock, marca, modelo, categ
               size="sm"
               className="rounded-pill fw-bold shadow-sm"
               style={{ backgroundColor: '#F59E0B', borderColor: '#F59E0B', color: '#09090B' }}
-              onClick={() => agregarAlCarrito(1)}
+              onClick={() => agregarAlCarrito(productoParaCarro)}
               disabled={stock === 0}
             >
               Agregar al Carrito 🛒

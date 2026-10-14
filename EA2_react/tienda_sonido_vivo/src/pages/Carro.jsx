@@ -96,7 +96,7 @@ function Carro() {
                                 const subtotal = item.precio * item.cantidad;
                                 const imagenProd = item.imagen || IMAGEN_RESPALDO;
 
-                                return (
+                                return(
                                     <Card
                                         key={idItem}
                                         className="border-0 rounded-4 shadow-sm p-3"
