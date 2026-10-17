@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { Container, Row, Col, Card, Form, Button, Alert } from 'react-bootstrap';
-import { Link, useNavigate } from 'react-router-dom';
-import { validarUsuario } from '../data/users';
-import { validarEmail, validarPassword } from '../utils/validaciones';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
+import { useToast } from '../context/ToastContext';
+import { validarEmail } from '../utils/validaciones';
 
 function InicioSesionpage() {
     const [email, setEmail] = useState('');
@@ -13,6 +14,9 @@ function InicioSesionpage() {
     const [errorGeneral, setErrorGeneral] = useState('');
 
     const navigate = useNavigate();
+    const location = useLocation();
+    const { login } = useAuth();
+    const { mostrarToast } = useToast();
 
     const validarFormulario = () => {
         const nuevosErrores = {};
@@ -37,12 +41,13 @@ function InicioSesionpage() {
             return;
         }
 
-        // Validación contra el archivo de usuarios
-        const resultado = validarUsuario(email, password);
+        // El contexto valida las credenciales y guarda la sesión
+        const resultado = login(email, password);
 
         if (resultado.exito) {
-            alert(`¡Bienvenido de nuevo, ${resultado.usuario.nombre}!`);
-            navigate('/');
+            mostrarToast(`¡Bienvenido de nuevo, ${resultado.usuario.nombre}!`, 'success');
+            // Si venías desde el carrito vuelves ahí; si no, al inicio
+            navigate(location.state?.from || '/');
         } else {
             setErrorGeneral(resultado.mensaje);
         }

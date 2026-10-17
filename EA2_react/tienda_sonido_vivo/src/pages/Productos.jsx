@@ -3,9 +3,12 @@
 import { Container, Row, Col, Button } from 'react-bootstrap';
 import { useSearchParams } from 'react-router-dom';
 import Producto from '../components/Producto';
-import { productos, categorias } from '../data/productos';
+import { categorias } from '../data/productos';
+import { useInventario } from '../context/InventarioContext';
+
 
 function Productos() {
+  const { productos } = useInventario();   // <-- línea nueva, al inicio del componente
   const [searchParams, setSearchParams] = useSearchParams();
   const categoriaSeleccionada = searchParams.get('categoria') || '';
 

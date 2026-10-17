@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Container, Row, Col, Card, Form, Button, Alert } from 'react-bootstrap';
 import { Link, useNavigate } from 'react-router-dom';
 import { registrarUsuario } from '../data/users';
+import { useToast } from '../context/ToastContext';
 import { validarNombre, validarEmail, validarPassword } from '../utils/validaciones';
 
 function RegistroSesionpage() {
@@ -14,6 +15,7 @@ function RegistroSesionpage() {
     const [errorGeneral, setErrorGeneral] = useState('');
 
     const navigate = useNavigate();
+    const { mostrarToast } = useToast();
 
     const validarFormulario = () => {
         const nuevosErrores = {};
@@ -49,7 +51,7 @@ function RegistroSesionpage() {
         const resultado = registrarUsuario({ nombre, email, password });
 
         if (resultado.exito) {
-            alert(resultado.mensaje);
+            mostrarToast('¡Cuenta creada! Ya puedes iniciar sesión.', 'success');
             navigate('/iniciosesion');
         } else {
             setErrorGeneral(resultado.mensaje);

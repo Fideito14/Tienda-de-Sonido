@@ -2,10 +2,12 @@ import Container from 'react-bootstrap/Container';
 import Navbar from 'react-bootstrap/Navbar';
 import Nav from 'react-bootstrap/Nav';
 import Button from 'react-bootstrap/Button';
+import Badge from 'react-bootstrap/Badge';
 import { Link } from 'react-router-dom';
 import logo from '../assets/logo-registro.jfif';
 import { useContext } from 'react';
 import { CartContext } from '../context/CartContext';
+import NavbarProfile from './NavbarProfile';
 
 function NavbarComponent() {
     const { cantidadCarrito } = useContext(CartContext);
@@ -36,9 +38,25 @@ function NavbarComponent() {
                         <Nav.Link as={Link} to="/productos">Productos</Nav.Link>
                     </Nav>
 
+                    <Nav className="me-3">
+                        <NavbarProfile />
+                    </Nav>
+
                     <Nav>
-                        <Button variant="outline-light" className="d-flex align-items-center">
-                            🛒 Carrito <span className="badge bg-danger ms-2">{cantidadCarrito}</span>
+                        {/* Conectado con as={Link} y to="/carrito" */}
+                        <Button
+                            as={Link}
+                            to="/carrito"
+                            variant="outline-warning"
+                            className="d-flex align-items-center fw-semibold px-3 rounded-pill"
+                            style={{ borderColor: '#F59E0B', color: '#F59E0B' }}
+                        >
+                            🛒 Carrito
+                            {cantidadCarrito > 0 && (
+                                <Badge bg="warning" text="dark" className="ms-2 rounded-pill fw-bold">
+                                    {cantidadCarrito}
+                                </Badge>
+                            )}
                         </Button>
                     </Nav>
                 </Navbar.Collapse>
