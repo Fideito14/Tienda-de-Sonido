@@ -1,5 +1,3 @@
-// src/components/Producto.jsx
-
 import { useContext, useState, useRef } from 'react';
 import { Card, Button, Badge } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
@@ -14,7 +12,19 @@ function Producto({ id, nombre, descripcion, precio, stock, marca, modelo, categ
 
   const imagenFinal = obtenerImagen({ imagen, categoria });
 
-  // Objeto con los datos que se guardan en el carrito
+  const handleAgregar = () => {
+    const resultado = agregarAlCarrito(productoParaCarro);
+    setMensaje(resultado);
+
+    // Si se hace clic varias veces seguidas, reinicia el temporizador
+    clearTimeout(timeoutRef.current);
+    timeoutRef.current = setTimeout(() => setMensaje(null), 3000);
+  };
+
+  /* Exequiel:
+      había error en el método onClick agregarAlCarrito.
+      Se soluciona creando un objeto para producto a insertar y usar ese producto.
+  */
   const productoParaCarro = {
     codigo: id,
     id,
@@ -25,17 +35,9 @@ function Producto({ id, nombre, descripcion, precio, stock, marca, modelo, categ
     marca,
     modelo,
     categoria,
-    imagen: imagenFinal,
-  };
+    imagen: imagenFinal
+  }
 
-  const handleAgregar = () => {
-    const resultado = agregarAlCarrito(productoParaCarro);
-    setMensaje(resultado);
-
-    // Si se hace clic varias veces seguidas, reinicia el temporizador
-    clearTimeout(timeoutRef.current);
-    timeoutRef.current = setTimeout(() => setMensaje(null), 3000);
-  };
 
   return (
     <Card
