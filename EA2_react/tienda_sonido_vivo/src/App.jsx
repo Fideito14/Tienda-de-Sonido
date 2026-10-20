@@ -12,6 +12,8 @@ import { InventarioProvider } from './context/InventarioContext'
 import { ToastProvider } from './context/ToastContext'
 import Inicio from './pages/Inicio'
 import Carro from './pages/Carro'
+import Admin from './pages/Admin'
+import RutaAdmin from './components/RutaAdmin'
 
 function App() {
   return (
@@ -28,6 +30,14 @@ function App() {
                 <Route path="/iniciosesion" element={<InicioSesion />} />
                 <Route path="/registrosesion" element={<RegistroSesion />} />
                 <Route path="/carrito" element={<Carro />} />
+                <Route
+                  path="/admin"
+                  element={
+                    <RutaAdmin>
+                      <Admin />
+                    </RutaAdmin>
+                  }
+                />
               </Routes>
             </BrowserRouter>
           </CartProvider>
