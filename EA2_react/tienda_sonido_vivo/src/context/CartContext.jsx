@@ -1,10 +1,11 @@
 import { createContext, useState, useEffect } from 'react';
 import { useAuth } from './AuthContext';
 import { useInventario } from './InventarioContext';
+import { PREFIJO_CARRITO } from '../data/clavesAlmacen.js';
 
 export const CartContext = createContext();
 
-const PREFIJO_CARRITO = 'sonido_vivo_carrito';
+const CLAVE_INVITADO = `${PREFIJO_CARRITO}:invitado`;
 
 const obtenerClave = (user) =>
     `${PREFIJO_CARRITO}:${user?.email ? user.email.toLowerCase() : 'invitado'}`;
@@ -19,17 +20,53 @@ const leerCarrito = (clave) => {
     }
 };
 
+/* Une el carrito "extra" (por ejemplo, el de invitado) al carrito de destino,
+   sumando las cantidades de los productos repetidos sin superar el stock
+   disponible de cada uno. */
+const fusionarCarritos = (destino, extra, stockDisponible) => {
+    const resultado = destino.map((item) => ({ ...item }));
+
+    extra.forEach((item) => {
+        const cantidad = item.cantidad || 0;
+        if (cantidad <= 0) return;
+
+        const idItem = item.codigo || item.id;
+        const stockMaximo = Math.max(1, stockDisponible(item) || 0);
+        const existente = resultado.find((x) => (x.codigo || x.id) === idItem);
+
+        if (existente) {
+            existente.cantidad = Math.min(existente.cantidad + cantidad, stockMaximo);
+            return;
+        }
+        resultado.push({ ...item, cantidad: Math.min(cantidad, stockMaximo) });
+    });
+
+    return resultado;
+};
+
 export function CartProvider({ children }) {
     const { user } = useAuth();
     const { obtenerStock, obtenerProducto, descontarStock } = useInventario();
     const clave = obtenerClave(user);
+    const stockDisponible = (item) => obtenerStock(item.codigo || item.id) ?? item.stock ?? 999;
 
     const [carrito, setCarrito] = useState(() => leerCarrito(clave));
     const [claveActual, setClaveActual] = useState(clave);
 
+    /* Al cambiar de dueño del carrito (iniciar o cerrar sesión) se recupera el
+       carrito correspondiente. Si se venía comprando como invitado, lo acumulado
+       se hereda al carrito del usuario en lugar de perderse. */
     if (clave !== claveActual) {
+        const veniaDeInvitado = claveActual === CLAVE_INVITADO;
+
+        const carritoSiguiente = veniaDeInvitado
+            ? fusionarCarritos(leerCarrito(clave), leerCarrito(claveActual), stockDisponible)
+            : leerCarrito(clave);
+
+        if (veniaDeInvitado) localStorage.removeItem(claveActual);
+
         setClaveActual(clave);
-        setCarrito(leerCarrito(clave));
+        setCarrito(carritoSiguiente);
     }
 
     useEffect(() => {
@@ -39,8 +76,6 @@ export function CartProvider({ children }) {
             console.error('Error al guardar en localStorage', e);
         }
     }, [carrito, claveActual]);
-
-    const stockDisponible = (item) => obtenerStock(item.codigo || item.id) ?? item.stock ?? 999;
 
     const agregarAlCarrito = (producto, cantidad = 1) => {
         if (!producto) return { exito: false, mensaje: 'Producto no válido' };
