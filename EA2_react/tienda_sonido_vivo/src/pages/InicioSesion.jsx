@@ -9,7 +9,6 @@ function InicioSesionpage() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
 
-    // Estados para errores de validación
     const [errores, setErrores] = useState({});
     const [errorGeneral, setErrorGeneral] = useState('');
 
@@ -41,13 +40,13 @@ function InicioSesionpage() {
             return;
         }
 
-        // El contexto valida las credenciales y guarda la sesión
         const resultado = login(email, password);
 
         if (resultado.exito) {
             mostrarToast(`¡Bienvenido de nuevo, ${resultado.usuario.nombre}!`, 'success');
-            // Si venías desde el carrito vuelves ahí; si no, al inicio
-            navigate(location.state?.from || '/');
+            // Si venías de otra página vuelves ahí; el admin va a su panel y el resto al inicio
+            const destinoPorDefecto = resultado.usuario.rol === 'admin' ? '/admin' : '/';
+            navigate(location.state?.from || destinoPorDefecto);
         } else {
             setErrorGeneral(resultado.mensaje);
         }

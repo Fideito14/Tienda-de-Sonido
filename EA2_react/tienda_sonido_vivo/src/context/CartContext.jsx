@@ -6,7 +6,6 @@ export const CartContext = createContext();
 
 const PREFIJO_CARRITO = 'sonido_vivo_carrito';
 
-// Cada usuario tiene su propia clave; sin sesión se usa "invitado"
 const obtenerClave = (user) =>
     `${PREFIJO_CARRITO}:${user?.email ? user.email.toLowerCase() : 'invitado'}`;
 
@@ -22,13 +21,12 @@ const leerCarrito = (clave) => {
 
 export function CartProvider({ children }) {
     const { user } = useAuth();
-    const { obtenerStock, descontarStock } = useInventario();
+    const { obtenerStock, obtenerProducto, descontarStock } = useInventario();
     const clave = obtenerClave(user);
 
     const [carrito, setCarrito] = useState(() => leerCarrito(clave));
     const [claveActual, setClaveActual] = useState(clave);
 
-    // Si cambió la sesión, cargamos el carrito del nuevo usuario
     if (clave !== claveActual) {
         setClaveActual(clave);
         setCarrito(leerCarrito(clave));
@@ -42,7 +40,6 @@ export function CartProvider({ children }) {
         }
     }, [carrito, claveActual]);
 
-    // Stock disponible hoy para un producto (si no se encuentra, usa el guardado en el ítem)
     const stockDisponible = (item) => obtenerStock(item.codigo || item.id) ?? item.stock ?? 999;
 
     const agregarAlCarrito = (producto, cantidad = 1) => {
@@ -104,7 +101,6 @@ export function CartProvider({ children }) {
         setCarrito([]);
     };
 
-    // Verifica el stock, lo descuenta y vacía el carrito
     const procesarCompra = () => {
         if (carrito.length === 0) {
             return { exito: false, mensaje: 'Tu carrito está vacío.' };
@@ -129,11 +125,18 @@ export function CartProvider({ children }) {
         return { exito: true, mensaje: '¡Compra realizada con éxito!' };
     };
 
-    // El carrito se expone con el stock actualizado, para que los botones +/- respeten el stock real
-    const carritoConStock = carrito.map((item) => ({ ...item, stock: stockDisponible(item) }));
+    const carritoConStock = carrito.map((item) => {
+        const actual = obtenerProducto(item.codigo || item.id);
+        return {
+            ...item,
+            nombre: actual?.nombre ?? item.nombre,
+            precio: actual?.precio ?? item.precio,
+            stock: stockDisponible(item),
+        };
+    });
 
     const cantidadCarrito = carrito.reduce((acc, item) => acc + (item.cantidad || 0), 0);
-    const precioTotal = carrito.reduce((acc, item) => acc + (item.precio * item.cantidad), 0);
+    const precioTotal = carritoConStock.reduce((acc, item) => acc + (item.precio * item.cantidad), 0);
 
     return (
         <CartContext.Provider value={{

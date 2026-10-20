@@ -1,5 +1,5 @@
 import { createContext, useContext, useState } from 'react';
-import { validarUsuario } from '../data/users';
+import { validarUsuario, obtenerRol } from '../data/users';
 
 const AuthContext = createContext(null);
 
@@ -10,9 +10,8 @@ export function AuthProvider({ children }) {
         try {
             const guardado = localStorage.getItem(CLAVE_SESION);
             if (!guardado) return null;
-            // Solo se conservan nombre y email (nunca la contraseña)
             const { nombre, email } = JSON.parse(guardado);
-            return { nombre, email };
+            return { nombre, email, rol: obtenerRol(email) };
         } catch {
             return null;
         }
@@ -22,8 +21,9 @@ export function AuthProvider({ children }) {
         const resultado = validarUsuario(email, password);
         if (!resultado.exito) return resultado;
 
-        const sesion = { nombre: resultado.usuario.nombre, email: resultado.usuario.email };
-        localStorage.setItem(CLAVE_SESION, JSON.stringify(sesion));
+        const { nombre, email: correo, rol } = resultado.usuario;
+        localStorage.setItem(CLAVE_SESION, JSON.stringify({ nombre, email: correo }));
+        const sesion = { nombre, email: correo, rol: rol === 'admin' ? 'admin' : 'cliente' };
         setUser(sesion);
         return { exito: true, usuario: sesion };
     };
@@ -33,8 +33,10 @@ export function AuthProvider({ children }) {
         setUser(null);
     };
 
+    const esAdmin = user?.rol === 'admin';
+
     return (
-        <AuthContext.Provider value={{ user, login, logout }}>
+        <AuthContext.Provider value={{ user, esAdmin, login, logout }}>
             {children}
         </AuthContext.Provider>
     );

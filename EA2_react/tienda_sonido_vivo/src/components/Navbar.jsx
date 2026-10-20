@@ -8,9 +8,11 @@ import logo from '../assets/logo-registro.jfif';
 import { useContext } from 'react';
 import { CartContext } from '../context/CartContext';
 import NavbarProfile from './NavbarProfile';
+import { useAuth } from '../context/AuthContext';
 
 function NavbarComponent() {
     const { cantidadCarrito } = useContext(CartContext);
+    const { esAdmin } = useAuth();
 
     return (
         <Navbar expand="lg" bg="dark" data-bs-theme="dark" sticky="top">
@@ -36,6 +38,11 @@ function NavbarComponent() {
                     <Nav className="me-auto ms-4">
                         <Nav.Link as={Link} to="/">Inicio</Nav.Link>
                         <Nav.Link as={Link} to="/productos">Productos</Nav.Link>
+                        {esAdmin && (
+                            <Nav.Link as={Link} to="/admin" className="fw-semibold" style={{ color: '#F59E0B' }}>
+                                Panel admin
+                            </Nav.Link>
+                        )}
                     </Nav>
 
                     <Nav className="me-3">

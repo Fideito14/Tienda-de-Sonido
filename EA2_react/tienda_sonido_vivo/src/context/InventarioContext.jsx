@@ -4,11 +4,11 @@ import { productos as productosBase } from '../data/productos';
 const InventarioContext = createContext(null);
 
 const CLAVE_STOCK = 'sonido_vivo_stock';
+const CLAVE_EDICIONES = 'sonido_vivo_ediciones';
 
-// Solo se guarda el stock de los productos que ya se vendieron, ej: { GA004: 1 }
-const leerStock = () => {
+const leerObjeto = (clave) => {
     try {
-        const guardado = localStorage.getItem(CLAVE_STOCK);
+        const guardado = localStorage.getItem(clave);
         const parsed = guardado ? JSON.parse(guardado) : {};
         return parsed && typeof parsed === 'object' && !Array.isArray(parsed) ? parsed : {};
     } catch {
@@ -16,27 +16,37 @@ const leerStock = () => {
     }
 };
 
+const guardarObjeto = (clave, valor) => {
+    try {
+        localStorage.setItem(clave, JSON.stringify(valor));
+    } catch (e) {
+        console.error(`Error al guardar ${clave}`, e);
+    }
+};
+
+const CAMPOS_EDITABLES = ['nombre', 'marca', 'modelo', 'descripcion', 'precio'];
+
 export function InventarioProvider({ children }) {
-    const [stockActual, setStockActual] = useState(leerStock);
+    const [stockActual, setStockActual] = useState(() => leerObjeto(CLAVE_STOCK));
+    const [ediciones, setEdiciones] = useState(() => leerObjeto(CLAVE_EDICIONES));
 
-    useEffect(() => {
-        try {
-            localStorage.setItem(CLAVE_STOCK, JSON.stringify(stockActual));
-        } catch (e) {
-            console.error('Error al guardar el stock', e);
-        }
-    }, [stockActual]);
+    useEffect(() => guardarObjeto(CLAVE_STOCK, stockActual), [stockActual]);
+    useEffect(() => guardarObjeto(CLAVE_EDICIONES, ediciones), [ediciones]);
 
-    // Catálogo con el stock ya actualizado
     const productos = useMemo(
-        () => productosBase.map((p) => ({ ...p, stock: stockActual[p.codigo] ?? p.stock })),
-        [stockActual]
+        () =>
+            productosBase.map((p) => ({
+                ...p,
+                ...(ediciones[p.codigo] || {}),
+                stock: stockActual[p.codigo] ?? p.stock,
+            })),
+        [stockActual, ediciones]
     );
 
-    // Devuelve el stock actual de un producto (undefined si no existe)
-    const obtenerStock = (codigo) => productos.find((p) => p.codigo === codigo)?.stock;
+    const obtenerProducto = (codigo) => productos.find((p) => p.codigo === codigo);
 
-    // Recibe [{ codigo, cantidad }] y descuenta cada uno sin bajar de 0
+    const obtenerStock = (codigo) => obtenerProducto(codigo)?.stock;
+
     const descontarStock = (items) => {
         setStockActual((prev) => {
             const nuevo = { ...prev };
@@ -50,8 +60,48 @@ export function InventarioProvider({ children }) {
         });
     };
 
+    const actualizarProducto = (codigo, cambios) => {
+        const base = productosBase.find((p) => p.codigo === codigo);
+        if (!base) return { exito: false, mensaje: 'El producto no existe.' };
+
+        const edicion = {};
+        CAMPOS_EDITABLES.forEach((campo) => {
+            if (cambios[campo] !== undefined) edicion[campo] = cambios[campo];
+        });
+
+        setEdiciones((prev) => ({ ...prev, [codigo]: edicion }));
+        if (cambios.stock !== undefined) {
+            setStockActual((prev) => ({ ...prev, [codigo]: cambios.stock }));
+        }
+        return { exito: true, mensaje: 'Producto actualizado.' };
+    };
+
+    const restablecerProducto = (codigo) => {
+        const sinCodigo = (prev) => {
+            const resto = { ...prev };
+            delete resto[codigo];
+            return resto;
+        };
+        setEdiciones(sinCodigo);
+        setStockActual(sinCodigo);
+    };
+
+    const estaModificado = (codigo) =>
+        codigo in ediciones || codigo in stockActual;
+
     return (
-        <InventarioContext.Provider value={{ productos, obtenerStock, descontarStock }}>
+        <InventarioContext.Provider
+            value={{
+                productos,
+                productosBase,
+                obtenerProducto,
+                obtenerStock,
+                descontarStock,
+                actualizarProducto,
+                restablecerProducto,
+                estaModificado,
+            }}
+        >
             {children}
         </InventarioContext.Provider>
     );
