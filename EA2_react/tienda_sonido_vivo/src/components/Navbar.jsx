@@ -39,7 +39,7 @@ function NavbarComponent() {
                         <Nav.Link as={Link} to="/">Inicio</Nav.Link>
                         <Nav.Link as={Link} to="/productos">Productos</Nav.Link>
                         {esAdmin && (
-                            <Nav.Link as={Link} to="/admin" className="fw-semibold" style={{ color: '#F59E0B' }}>
+                            <Nav.Link as={Link} to="/admin/productos" className="fw-semibold" style={{ color: '#F59E0B' }}>
                                 Panel admin
                             </Nav.Link>
                         )}

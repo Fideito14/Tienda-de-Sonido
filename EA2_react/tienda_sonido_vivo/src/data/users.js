@@ -1,7 +1,8 @@
 const USUARIO_DEMO = {
     nombre: 'Usuario Demo',
     email: 'demo@sonidovivo.cl',
-    password: 'Demo123Password'
+    password: 'Demo123Password',
+    rol: 'cliente'
 };
 
 const USUARIO_ADMIN = {
@@ -11,21 +12,33 @@ const USUARIO_ADMIN = {
     rol: 'admin'
 };
 
-const obtenerUsuarios = () => {
-    const guardados = localStorage.getItem('app_usuarios');
+const CLAVE_USUARIOS = 'app_usuarios';
+
+const normalizarRol = (rol) => (rol === 'admin' ? 'admin' : 'cliente');
+
+const guardarUsuarios = (usuarios) => {
+    localStorage.setItem(CLAVE_USUARIOS, JSON.stringify(usuarios));
+    return usuarios;
+};
+
+export const obtenerUsuarios = () => {
+    const guardados = localStorage.getItem(CLAVE_USUARIOS);
     let usuarios = guardados ? JSON.parse(guardados) : [USUARIO_DEMO];
 
+    if (!Array.isArray(usuarios)) usuarios = [USUARIO_DEMO];
+
     const hayAdmin = usuarios.some(
-        (u) => u.email.toLowerCase() === USUARIO_ADMIN.email
+        (u) => u.email.toLowerCase() === USUARIO_ADMIN.email.toLowerCase()
     );
     if (!hayAdmin) {
         usuarios = [...usuarios, USUARIO_ADMIN];
     }
 
     if (!guardados || !hayAdmin) {
-        localStorage.setItem('app_usuarios', JSON.stringify(usuarios));
+        localStorage.setItem(CLAVE_USUARIOS, JSON.stringify(usuarios));
     }
-    return usuarios;
+
+    return usuarios.map((u) => ({ ...u, rol: normalizarRol(u.rol) }));
 };
 
 export const registrarUsuario = (nuevoUsuario) => {
@@ -40,9 +53,109 @@ export const registrarUsuario = (nuevoUsuario) => {
     }
 
     const { nombre, email, password } = nuevoUsuario;
-    usuarios.push({ nombre, email, password });
-    localStorage.setItem('app_usuarios', JSON.stringify(usuarios));
+    usuarios.push({
+        nombre,
+        email,
+        password,
+        rol: 'cliente',
+        registradoEn: new Date().toISOString()
+    });
+    localStorage.setItem(CLAVE_USUARIOS, JSON.stringify(usuarios));
     return { exito: true, mensaje: '¡Usuario registrado exitosamente!' };
+};
+
+/**
+ * Actualiza los datos de un usuario existente.
+ * @param {string} emailOriginal correo del usuario a modificar
+ * @param {{nombre?: string, email?: string, password?: string, rol?: string}} cambios
+ * @param {{emailSesion?: string}} opciones el correo del administrador conectado
+ */
+export const actualizarUsuario = (emailOriginal, cambios = {}, opciones = {}) => {
+    const { emailSesion = '' } = opciones;
+    const usuarios = obtenerUsuarios();
+
+    const indice = usuarios.findIndex(
+        (u) => u.email.toLowerCase() === emailOriginal.toLowerCase()
+    );
+
+    if (indice === -1) {
+        return { exito: false, mensaje: 'El usuario no existe.' };
+    }
+
+    const anterior = usuarios[indice];
+    const email = (cambios.email ?? anterior.email).trim();
+
+    const existeOtro = usuarios.some(
+        (u, i) => i !== indice && u.email.toLowerCase() === email.toLowerCase()
+    );
+    if (existeOtro) {
+        return { exito: false, mensaje: 'Ese correo ya está registrado por otro usuario.' };
+    }
+
+    const actualizado = {
+        ...anterior,
+        nombre: (cambios.nombre ?? anterior.nombre).trim(),
+        email,
+        password: cambios.password ? cambios.password : anterior.password,
+        rol: normalizarRol(cambios.rol ?? anterior.rol)
+    };
+
+    const esSesionActual = emailOriginal.toLowerCase() === emailSesion.toLowerCase();
+
+    // El administrador conectado no puede degradarse a sí mismo.
+    if (esSesionActual && actualizado.rol !== 'admin') {
+        return { exito: false, mensaje: 'No puedes quitarte a ti mismo el rol de administrador.' };
+    }
+
+    // La tienda debe conservar al menos un administrador.
+    if (anterior.rol === 'admin' && actualizado.rol !== 'admin') {
+        const administradores = usuarios.filter((u) => normalizarRol(u.rol) === 'admin');
+        if (administradores.length <= 1) {
+            return { exito: false, mensaje: 'Debe quedar al menos un administrador activo en la tienda.' };
+        }
+    }
+
+    usuarios[indice] = actualizado;
+    guardarUsuarios(usuarios);
+
+    return {
+        exito: true,
+        mensaje: `Los datos de "${actualizado.nombre}" se actualizaron correctamente.`,
+        usuario: actualizado
+    };
+};
+
+/**
+ * Elimina un usuario registrado.
+ * @param {string} email correo del usuario a eliminar
+ * @param {{emailSesion?: string}} opciones el correo del administrador conectado
+ */
+export const eliminarUsuario = (email, opciones = {}) => {
+    const { emailSesion = '' } = opciones;
+    const usuarios = obtenerUsuarios();
+
+    const indice = usuarios.findIndex((u) => u.email.toLowerCase() === email.toLowerCase());
+    if (indice === -1) {
+        return { exito: false, mensaje: 'El usuario no existe.' };
+    }
+
+    const objetivo = usuarios[indice];
+
+    if (objetivo.email.toLowerCase() === emailSesion.toLowerCase()) {
+        return { exito: false, mensaje: 'No puedes eliminar tu propia cuenta desde el panel.' };
+    }
+
+    if (normalizarRol(objetivo.rol) === 'admin') {
+        const administradores = usuarios.filter((u) => normalizarRol(u.rol) === 'admin');
+        if (administradores.length <= 1) {
+            return { exito: false, mensaje: 'No puedes eliminar al último administrador de la tienda.' };
+        }
+    }
+
+    usuarios.splice(indice, 1);
+    guardarUsuarios(usuarios);
+
+    return { exito: true, mensaje: `El usuario "${objetivo.nombre}" fue eliminado.` };
 };
 
 export const validarUsuario = (email, password) => {

@@ -37,9 +37,14 @@ export default function NavbarProfile() {
                         <Dropdown.Divider />
 
                         {esAdmin && (
-                            <Dropdown.Item as={Link} to="/admin" className="fw-semibold rounded py-2">
-                                Panel de administración
-                            </Dropdown.Item>
+                            <>
+                                <Dropdown.Item as={Link} to="/admin/productos" className="fw-semibold rounded py-2">
+                                    Panel de administración
+                                </Dropdown.Item>
+                                <Dropdown.Item as={Link} to="/admin/usuarios" className="rounded py-2">
+                                    Usuarios registrados
+                                </Dropdown.Item>
+                            </>
                         )}
 
                         <Dropdown.Item

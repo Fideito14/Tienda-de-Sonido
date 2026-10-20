@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect, useMemo } from 'react';
+import { createContext, useContext, useState, useEffect, useMemo, useCallback } from 'react';
 import { productos as productosBase } from '../data/productos';
 
 const InventarioContext = createContext(null);
@@ -86,8 +86,10 @@ export function InventarioProvider({ children }) {
         setStockActual(sinCodigo);
     };
 
-    const estaModificado = (codigo) =>
-        codigo in ediciones || codigo in stockActual;
+    const estaModificado = useCallback(
+        (codigo) => codigo in ediciones || codigo in stockActual,
+        [ediciones, stockActual]
+    );
 
     return (
         <InventarioContext.Provider

@@ -1,5 +1,5 @@
 import { createContext, useContext, useState } from 'react';
-import { validarUsuario, obtenerRol } from '../data/users';
+import { validarUsuario, obtenerRol, obtenerUsuarios } from '../data/users';
 
 const AuthContext = createContext(null);
 
@@ -33,10 +33,38 @@ export function AuthProvider({ children }) {
         setUser(null);
     };
 
+    /**
+     * Vuelve a leer los datos del usuario conectado desde el almacén de usuarios.
+     * Si la cuenta ya no existe, cierra la sesión.
+     * @param {{nombre: string, email: string, rol?: string}} [usuarioActualizado]
+     */
+    const refrescarUsuario = (usuarioActualizado) => {
+        if (!user) return null;
+
+        const datos =
+            usuarioActualizado ||
+            obtenerUsuarios().find((u) => u.email.toLowerCase() === user.email.toLowerCase());
+
+        if (!datos) {
+            logout();
+            return null;
+        }
+
+        const sesion = {
+            nombre: datos.nombre,
+            email: datos.email,
+            rol: datos.rol === 'admin' ? 'admin' : 'cliente'
+        };
+
+        localStorage.setItem(CLAVE_SESION, JSON.stringify({ nombre: sesion.nombre, email: sesion.email }));
+        setUser(sesion);
+        return sesion;
+    };
+
     const esAdmin = user?.rol === 'admin';
 
     return (
-        <AuthContext.Provider value={{ user, esAdmin, login, logout }}>
+        <AuthContext.Provider value={{ user, esAdmin, login, logout, refrescarUsuario }}>
             {children}
         </AuthContext.Provider>
     );
