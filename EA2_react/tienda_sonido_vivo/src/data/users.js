@@ -1,3 +1,5 @@
+import { PREFIJO_CARRITO } from './clavesAlmacen.js';
+
 const USUARIO_DEMO = {
     nombre: 'Usuario Demo',
     email: 'demo@sonidovivo.cl',
@@ -13,6 +15,27 @@ const USUARIO_ADMIN = {
 };
 
 const CLAVE_USUARIOS = 'app_usuarios';
+
+/* Al cambiar el correo de un usuario, su carrito no debe quedar huérfano:
+   la clave del carrito se deriva del correo, así que se traslada a la clave
+   que corresponde al correo nuevo. */
+const renombrarCarrito = (emailAnterior, emailNuevo) => {
+    const claveAnterior = `${PREFIJO_CARRITO}:${emailAnterior.toLowerCase()}`;
+    const claveNueva = `${PREFIJO_CARRITO}:${emailNuevo.toLowerCase()}`;
+    if (claveAnterior === claveNueva) return;
+
+    try {
+        const carrito = localStorage.getItem(claveAnterior);
+        if (carrito === null) return;
+
+        if (localStorage.getItem(claveNueva) === null) {
+            localStorage.setItem(claveNueva, carrito);
+        }
+        localStorage.removeItem(claveAnterior);
+    } catch {
+        // si el almacenamiento falla, el carrito queda como esté
+    }
+};
 
 const normalizarRol = (rol) => (rol === 'admin' ? 'admin' : 'cliente');
 
@@ -117,6 +140,11 @@ export const actualizarUsuario = (emailOriginal, cambios = {}, opciones = {}) =>
 
     usuarios[indice] = actualizado;
     guardarUsuarios(usuarios);
+
+    // Si cambió el correo, el carrito pasa a la clave del correo nuevo.
+    if (actualizado.email.toLowerCase() !== emailOriginal.toLowerCase()) {
+        renombrarCarrito(emailOriginal, actualizado.email);
+    }
 
     return {
         exito: true,
