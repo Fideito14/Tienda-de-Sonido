@@ -86,9 +86,11 @@ export function InventarioProvider({ children }) {
         setStockActual(sinCodigo);
     };
 
+    /* Solo cuenta las ediciones manuales del panel. El stock disminuido por una
+       venta también vive en stockActual, pero eso no es un "producto editado". */
     const estaModificado = useCallback(
-        (codigo) => codigo in ediciones || codigo in stockActual,
-        [ediciones, stockActual]
+        (codigo) => codigo in ediciones,
+        [ediciones]
     );
 
     return (
